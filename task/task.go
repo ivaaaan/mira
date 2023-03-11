@@ -1,4 +1,4 @@
-package main
+package task
 
 type TaskType int
 
@@ -14,6 +14,6 @@ type Task struct {
 	Description string
 	Properties  map[string]string
 	Type        TaskType
-	Parent      *Task
-	Children    []Task
+	Children    []*Task
+	Level       int
 }
