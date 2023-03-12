@@ -66,3 +66,11 @@ username = "<your email>"
 api_token = "<your api token>"
 project_key = "<your project key>"
 ```
+
+## TODO
+
+- [ ] Tests coverege
+- [ ] Convert Markdown text to Jira format
+- [ ] Support subtasks in Jira
+- [ ] Login command
+- [ ] Goreleaser
