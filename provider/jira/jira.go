@@ -13,6 +13,12 @@ import (
 // Perhaps should be moved to the config
 const epicNameField = "customfield_10011"
 
+var levelToIssueTypeMap = map[int]string{
+	1: "Epic",
+	2: "Task",
+	3: "Sub-task",
+}
+
 type jiraProvider struct {
 	jiraClient *jira.Client
 	projectKey string
@@ -35,18 +41,23 @@ func NewJiraProvider(URL, username, password, projectKey string) (*jiraProvider,
 	}, nil
 }
 
-func (p *jiraProvider) createIssues(ctx context.Context, t *task.Task, issueType, parent string) error {
-
+func (p *jiraProvider) createIssues(ctx context.Context, t *task.Task, parent string) error {
 	fields := &jira.IssueFields{
 		Summary:     t.Title,
 		Description: t.Description,
-		Type: jira.IssueType{
-			Name: issueType,
-		},
-		Unknowns: make(map[string]interface{}),
+		Unknowns:    make(map[string]interface{}),
 		Project: jira.Project{
 			Key: p.projectKey,
 		},
+	}
+
+	issueType, ok := levelToIssueTypeMap[t.Level]
+	if !ok {
+		return fmt.Errorf("cannot map level to issueType. current implementation supports only 3 levels")
+	}
+
+	fields.Type = jira.IssueType{
+		Name: issueType,
 	}
 
 	if issueType == "Epic" {
@@ -59,7 +70,7 @@ func (p *jiraProvider) createIssues(ctx context.Context, t *task.Task, issueType
 		}
 	}
 
-	issue, rsp, err := p.jiraClient.Issue.Create(&jira.Issue{
+	issue, rsp, err := p.jiraClient.Issue.CreateWithContext(ctx, &jira.Issue{
 		Fields: fields,
 	})
 
@@ -73,7 +84,7 @@ func (p *jiraProvider) createIssues(ctx context.Context, t *task.Task, issueType
 	}
 
 	for _, c := range t.Children {
-		err := p.createIssues(ctx, c, "Task", issue.ID)
+		err := p.createIssues(ctx, c, issue.ID)
 		if err != nil {
 			return err
 		}
@@ -83,5 +94,5 @@ func (p *jiraProvider) createIssues(ctx context.Context, t *task.Task, issueType
 }
 
 func (p *jiraProvider) Push(ctx context.Context, t *task.Task) error {
-	return p.createIssues(ctx, t, "Epic", "")
+	return p.createIssues(ctx, t, "")
 }

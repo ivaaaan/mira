@@ -29,7 +29,7 @@ Child issue description
 
 In theory, you can nest as many issues as you want. However, Jira's provider implementation supports only two levels at the moment.
 
-Your root issue will be created with type `Epic`, and all nested issues with type `Task`. `Subtask` are not supported at the moment, but I will add them eventually.
+Your root issue will be created with type `Epic`, and all nested issues with type `Task` and `Sub-task`.
 
 ### Parsers and providers
 
@@ -71,6 +71,6 @@ project_key = "<your project key>"
 
 - [ ] Tests coverege
 - [ ] Convert Markdown text to Jira format
-- [ ] Support subtasks in Jira
+- [x] Support subtasks in Jira
 - [ ] Login command
 - [ ] Goreleaser

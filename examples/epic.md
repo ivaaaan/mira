@@ -9,7 +9,13 @@ We the future versions we will also add support for labels.
 Initialize a skeleton of the project. We will use Go for this project.
 Research and add all necessary tooling you think is needed. `cobra` and `viper` are good choices for CLI programs.
 
+### Create a Git repo
+
+### Create Confulence page with docs
+
 ## Create parser
 
 Parser should parse issues from markdown file and create a tree of `Task` structs, which can be later processed and pushed to Jira.
+
+### Parse tree of tickets
 
