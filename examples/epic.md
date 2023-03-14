@@ -1,8 +1,12 @@
 # Create a tool that can convert Markdown text to Jira issues
 
 We want to create a CLI tool that can convert Markdown outline to Jira issues.
-Each heading in Markdown text will represent an issue in Jira. Nesting of issues can be achieved by using levels of Markdown heading. 
-We the future versions we will also add support for labels.
+Each heading in Markdown text will represent an issue in Jira. Nesting of issues can be achieved by using levels of Markdown heading.
+The future versions we will also add support for labels.
+
+* Hello world!
+* Test
+* TEst
 
 ## Create a skeleton of the project
 

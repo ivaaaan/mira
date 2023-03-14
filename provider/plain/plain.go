@@ -20,7 +20,7 @@ type plainProvider struct {
 func writeTask(w io.Writer, t *task.Task) {
 	titleInt := strings.Repeat("-", t.Level)
 	descInt := strings.Repeat(" ", t.Level)
-	fmt.Fprintf(w, "%s %s\n%s %s\n", titleInt, t.Title, descInt, t.Description)
+	fmt.Fprintf(w, "%s %s\n%s %s\n", titleInt, t.Title, descInt, t.GetDescription())
 	for _, c := range t.Children {
 		writeTask(w, c)
 	}

@@ -44,7 +44,7 @@ func NewJiraProvider(URL, username, password, projectKey string) (*jiraProvider,
 func (p *jiraProvider) createIssues(ctx context.Context, t *task.Task, parent string) error {
 	fields := &jira.IssueFields{
 		Summary:     t.Title,
-		Description: t.Description,
+		Description: t.GetDescription(),
 		Unknowns:    make(map[string]interface{}),
 		Project: jira.Project{
 			Key: p.projectKey,

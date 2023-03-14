@@ -1,48 +1,52 @@
 package markdown
 
 import (
+	"bytes"
+
 	"github.com/ivaaaan/mira/task"
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/parser"
-	"github.com/yuin/goldmark/text"
+	bf "github.com/russross/blackfriday/v2"
 )
 
 func NewParser() *markdownParser {
-	defaultParser := goldmark.DefaultParser()
-	defaultParser.AddOptions(parser.WithAttribute())
+	md := bf.New(bf.WithExtensions(bf.CommonExtensions))
 	return &markdownParser{
-		p: defaultParser,
+		p: md,
 	}
 }
 
 type markdownParser struct {
-	p parser.Parser
+	p *bf.Markdown
 }
 
 func (p *markdownParser) Parse(b []byte) (*task.Task, error) {
-	node := p.p.Parse(text.NewReader(b))
+	node := p.p.Parse(b)
 
 	var tasks []*task.Task
-	ast.Walk(node, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
+	node.Walk(func(n *bf.Node, entering bool) bf.WalkStatus {
 		if entering == false {
-			return ast.WalkContinue, nil
+			return bf.GoToNext
 		}
 
-		switch n := n.(type) {
-		case *ast.Heading:
-			t := string(n.Text(b))
+		switch n.Type {
+		case bf.Heading:
+			textNode := n.FirstChild
+			if textNode == nil {
+				return bf.GoToNext
+			}
 			newTask := &task.Task{
-				Title: t,
-				Level: n.Level,
+				Title:       string(textNode.Literal),
+				Level:       n.Level,
+				Description: bytes.NewBuffer([]byte{}),
 			}
 
 			tasks = append(tasks, newTask)
-		case *ast.Paragraph:
-			tasks[len(tasks)-1].Description = string(n.Text(b))
+		default:
+			if len(tasks) > 0 {
+				tasks[len(tasks)-1].Description.Write(n.Literal)
+			}
 		}
 
-		return ast.WalkContinue, nil
+		return bf.GoToNext
 	})
 
 	root := tasks[0]

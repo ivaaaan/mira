@@ -1,5 +1,7 @@
 package task
 
+import "io"
+
 type TaskType int
 
 const (
@@ -11,9 +13,18 @@ const (
 type Task struct {
 	ID          string
 	Title       string
-	Description string
+	Description io.ReadWriter
 	Properties  map[string]string
 	Type        TaskType
 	Children    []*Task
 	Level       int
+}
+
+func (t Task) GetDescription() string {
+	b, err := io.ReadAll(t.Description)
+	if err != nil {
+		return ""
+	}
+
+	return string(b)
 }
