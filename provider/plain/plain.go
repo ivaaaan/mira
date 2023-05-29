@@ -25,7 +25,7 @@ func writeTask(w io.Writer, t *task.Task) {
 		descLines[i] = strings.Repeat(" ", t.Level) + d
 	}
 	descInt := strings.Join(descLines, "\n")
-	fmt.Fprintf(w, "%s %s\n%s\n", titleInt, t.Title, descInt)
+	fmt.Fprintf(w, "%s %s%s\n", titleInt, t.Title, descInt)
 	for _, c := range t.Children {
 		writeTask(w, c)
 	}
