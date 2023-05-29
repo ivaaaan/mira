@@ -8,7 +8,9 @@ import (
 )
 
 func NewParser() *markdownParser {
-	md := bf.New(bf.WithExtensions(bf.CommonExtensions))
+	md := bf.New(
+		bf.WithExtensions(bf.CommonExtensions),
+	)
 	return &markdownParser{
 		p: md,
 	}
@@ -23,12 +25,17 @@ func (p *markdownParser) Parse(b []byte) (*task.Task, error) {
 
 	var tasks []*task.Task
 	node.Walk(func(n *bf.Node, entering bool) bf.WalkStatus {
-		if entering == false {
-			return bf.GoToNext
+		var curr *task.Task
+		if len(tasks) > 0 {
+			curr = tasks[len(tasks)-1]
 		}
 
 		switch n.Type {
 		case bf.Heading:
+			if !entering {
+				return bf.GoToNext
+			}
+
 			textNode := n.FirstChild
 			if textNode == nil {
 				return bf.GoToNext
@@ -40,9 +47,28 @@ func (p *markdownParser) Parse(b []byte) (*task.Task, error) {
 			}
 
 			tasks = append(tasks, newTask)
+			return bf.SkipChildren
+		case bf.Link:
+			if entering {
+				curr.Description.Write(n.Destination)
+				return bf.SkipChildren
+			}
+		case bf.List:
+			if entering {
+				return bf.GoToNext
+			}
+		case bf.Item:
+			if entering {
+				curr.Description.Write([]byte("\n- "))
+				return bf.GoToNext
+			}
 		default:
-			if len(tasks) > 0 {
-				tasks[len(tasks)-1].Description.Write(n.Literal)
+			if curr != nil {
+				if entering {
+					curr.Description.Write(n.Literal)
+				} else {
+					curr.Description.Write([]byte("\n"))
+				}
 			}
 		}
 
