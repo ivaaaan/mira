@@ -75,6 +75,9 @@ func (p *jiraProvider) createIssues(ctx context.Context, t *task.Task, parent st
 	})
 
 	if err != nil {
+		if rsp == nil {
+			return fmt.Errorf("cannot create jira issue: %v", err)
+		}
 		b, err := io.ReadAll(rsp.Body)
 		if err != nil {
 			return fmt.Errorf("cannot read response body: %v", err)
