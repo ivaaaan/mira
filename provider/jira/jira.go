@@ -44,7 +44,7 @@ func NewJiraProvider(URL, username, password, projectKey string) (*jiraProvider,
 func (p *jiraProvider) createIssues(ctx context.Context, t *task.Task, parent string) error {
 	fields := &jira.IssueFields{
 		Summary:     t.Title,
-		Description: t.Description,
+		Description: t.GetDescription(),
 		Unknowns:    make(map[string]interface{}),
 		Project: jira.Project{
 			Key: p.projectKey,
@@ -75,6 +75,9 @@ func (p *jiraProvider) createIssues(ctx context.Context, t *task.Task, parent st
 	})
 
 	if err != nil {
+		if rsp == nil {
+			return fmt.Errorf("cannot create jira issue: %v", err)
+		}
 		b, err := io.ReadAll(rsp.Body)
 		if err != nil {
 			return fmt.Errorf("cannot read response body: %v", err)

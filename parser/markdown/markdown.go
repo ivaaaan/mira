@@ -1,48 +1,80 @@
 package markdown
 
 import (
+	"bytes"
+	"strings"
+
 	"github.com/ivaaaan/mira/task"
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/parser"
-	"github.com/yuin/goldmark/text"
+	bf "github.com/russross/blackfriday/v2"
 )
 
 func NewParser() *markdownParser {
-	defaultParser := goldmark.DefaultParser()
-	defaultParser.AddOptions(parser.WithAttribute())
+	md := bf.New(
+		bf.WithExtensions(bf.CommonExtensions),
+	)
 	return &markdownParser{
-		p: defaultParser,
+		p: md,
 	}
 }
 
 type markdownParser struct {
-	p parser.Parser
+	p *bf.Markdown
 }
 
 func (p *markdownParser) Parse(b []byte) (*task.Task, error) {
-	node := p.p.Parse(text.NewReader(b))
+	node := p.p.Parse(b)
 
 	var tasks []*task.Task
-	ast.Walk(node, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
-		if entering == false {
-			return ast.WalkContinue, nil
+	node.Walk(func(n *bf.Node, entering bool) bf.WalkStatus {
+		var curr *task.Task
+		if len(tasks) > 0 {
+			curr = tasks[len(tasks)-1]
 		}
 
-		switch n := n.(type) {
-		case *ast.Heading:
-			t := string(n.Text(b))
+		switch n.Type {
+		case bf.Heading:
+			if !entering {
+				return bf.GoToNext
+			}
+
+			textNode := n.FirstChild
+			if textNode == nil {
+				return bf.GoToNext
+			}
 			newTask := &task.Task{
-				Title: t,
-				Level: n.Level,
+				Title:       string(textNode.Literal),
+				Level:       n.Level,
+				Description: bytes.NewBuffer([]byte{}),
 			}
 
 			tasks = append(tasks, newTask)
-		case *ast.Paragraph:
-			tasks[len(tasks)-1].Description = string(n.Text(b))
+			return bf.SkipChildren
+		case bf.Link:
+			if entering {
+				curr.Description.Write(n.Destination)
+				return bf.SkipChildren
+			}
+		case bf.Item:
+			if entering {
+				curr.Description.Write([]byte("\n- "))
+				return bf.GoToNext
+			}
+		case bf.Paragraph:
+			// Check if it is an empty paragraph, and it's not a part of a list
+			if entering && len(strings.TrimSpace(string(n.Literal))) == 0 && n.Prev != nil && n.Prev.Type != bf.Item {
+				curr.Description.Write([]byte("\n\n"))
+			}
+		default:
+			if curr != nil {
+				if entering {
+					curr.Description.Write(n.Literal)
+				} else {
+					curr.Description.Write([]byte("\n"))
+				}
+			}
 		}
 
-		return ast.WalkContinue, nil
+		return bf.GoToNext
 	})
 
 	root := tasks[0]
