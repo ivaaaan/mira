@@ -1,9 +1,6 @@
 package markdown
 
 import (
-	"bytes"
-	"strings"
-
 	"github.com/ivaaaan/mira/task"
 	bf "github.com/russross/blackfriday/v2"
 )
@@ -41,35 +38,17 @@ func (p *markdownParser) Parse(b []byte) (*task.Task, error) {
 			if textNode == nil {
 				return bf.GoToNext
 			}
-			newTask := &task.Task{
-				Title:       string(textNode.Literal),
-				Level:       n.Level,
-				Description: bytes.NewBuffer([]byte{}),
-			}
 
+			newTask := task.NewTask(string(textNode.Literal), n.Level)
 			tasks = append(tasks, newTask)
+
 			return bf.SkipChildren
-		case bf.Link:
-			if entering {
-				curr.Description.Write(n.Destination)
-				return bf.SkipChildren
-			}
-		case bf.Item:
-			if entering {
-				curr.Description.Write([]byte("\n- "))
-				return bf.GoToNext
-			}
-		case bf.Paragraph:
-			// Check if it is an empty paragraph, and it's not a part of a list
-			if entering && len(strings.TrimSpace(string(n.Literal))) == 0 && n.Prev != nil && n.Prev.Type != bf.Item {
-				curr.Description.Write([]byte("\n\n"))
-			}
 		default:
 			if curr != nil {
 				if entering {
-					curr.Description.Write(n.Literal)
+					curr.WriteDescription(string(n.Literal))
 				} else {
-					curr.Description.Write([]byte("\n"))
+					curr.WriteDescription("\n")
 				}
 			}
 		}

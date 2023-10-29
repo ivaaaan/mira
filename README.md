@@ -69,8 +69,8 @@ project_key = "<your project key>"
 
 ## TODO
 
-- [ ] Tests coverege
-- [ ] Convert Markdown text to Jira format
+- [ ] Tests 
+- [ ] Decouple converting Markdown to Jira from the Parser
 - [x] Support subtasks in Jira
 - [ ] Login command
 - [ ] Goreleaser

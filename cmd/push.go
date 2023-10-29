@@ -45,6 +45,10 @@ var pushCmd = &cobra.Command{
 			Config.Jira.Api_Token,
 			Config.Jira.Project_Key,
 		)
+		if err != nil {
+			return fmt.Errorf("failed to initialize a jira provider: %w", err)
+		}
+
 		plainProvider := plain.NewProvider(os.Stdout)
 
 		providers := map[string]provider.Provider{

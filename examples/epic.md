@@ -8,6 +8,12 @@ The future versions we will also add support for labels.
 - Test
 - Test
 
+Test list:
+
+- *Item 1*
+- _Item 2_
+- **Item 3**
+
 ## Create a skeleton of the project
 
 Initialize a skeleton of the project. We will use Go for this project.

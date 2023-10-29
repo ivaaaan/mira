@@ -1,6 +1,9 @@
 package task
 
-import "io"
+import (
+	"bytes"
+	"io"
+)
 
 type TaskType int
 
@@ -11,17 +14,37 @@ const (
 )
 
 type Task struct {
-	ID          string
-	Title       string
-	Description io.ReadWriter
-	Properties  map[string]string
-	Type        TaskType
-	Children    []*Task
-	Level       int
+	ID       string
+	Title    string
+	Type     TaskType
+	Children []*Task
+	Level    int
+
+	description io.ReadWriter
 }
 
-func (t Task) GetDescription() string {
-	b, err := io.ReadAll(t.Description)
+func NewTask(title string, l int) *Task {
+	return &Task{
+		Level:       l,
+		Title:       title,
+		description: bytes.NewBuffer([]byte{}),
+	}
+}
+
+// Append string to a current description.
+// If buffer does not exist, it will create a new buffer
+func (t Task) WriteDescription(s string) error {
+	if t.description == nil {
+		t.description = bytes.NewBuffer([]byte{})
+	}
+
+	_, err := t.description.Write([]byte(s))
+	return err
+}
+
+// Reads all bytes from the buffer and returns a string
+func (t Task) Description() string {
+	b, err := io.ReadAll(t.description)
 	if err != nil {
 		return ""
 	}

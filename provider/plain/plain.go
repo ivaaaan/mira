@@ -20,7 +20,7 @@ type plainProvider struct {
 func writeTask(w io.Writer, t *task.Task) {
 	titleInt := strings.Repeat("-", t.Level)
 
-	descLines := strings.Split(t.GetDescription(), "\n")
+	descLines := strings.Split(t.Description(), "\n")
 	for i, d := range descLines {
 		descLines[i] = strings.Repeat(" ", t.Level) + d
 	}
