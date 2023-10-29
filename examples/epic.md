@@ -23,10 +23,9 @@ Here we go with some links: [Duck Duck Go](https://duckduckgo.com).
 
 Does it support lists?
 
-- I
-- have
-- no
-- idea
+- Yes 
+- it
+- does
 
 ### Create a Git repo
 

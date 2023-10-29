@@ -25,8 +25,8 @@ type Task struct {
 
 func NewTask(title string, l int) *Task {
 	return &Task{
-		Level:       l,
 		Title:       title,
+		Level:       l,
 		description: bytes.NewBuffer([]byte{}),
 	}
 }
