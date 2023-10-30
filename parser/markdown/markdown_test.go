@@ -23,7 +23,7 @@ func TestParse(t *testing.T) {
 		expected *task.Task
 	}{
 		{
-			name: "parse hiararcy",
+			name: "parse hierarchy",
 			markdown: `# Level 1
 ## Level 2
 
