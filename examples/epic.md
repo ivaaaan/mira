@@ -14,6 +14,10 @@ Test list:
 - _Item 2_
 - **Item 3**
 
+```js
+Test code block
+```
+
 ## Create a skeleton of the project
 
 Initialize a skeleton of the project. We will use Go for this project.

@@ -42,12 +42,25 @@ func TestParse(t *testing.T) {
 		},
 	}
 
-	parser := NewParser()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			parser := NewParser()
 			task, err := parser.Parse([]byte(tt.markdown))
 			assert.NoError(t, err)
 			assert.EqualExportedValues(t, *tt.expected, *task)
 		})
 	}
+}
+
+func TestParseCodeBlock(t *testing.T) {
+
+	parser := NewParser()
+	markdown := "# Level 1\n" +
+		"```js\n" +
+		"code\n" +
+		"```\n"
+	task, err := parser.Parse([]byte(markdown))
+	assert.NoError(t, err)
+	expected := "{code:js}\ncode\n{code}\n"
+	assert.Equal(t, expected, task.Description())
 }

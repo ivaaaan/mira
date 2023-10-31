@@ -52,6 +52,10 @@ func (p *markdownParser) Parse(b []byte) (*task.Task, error) {
 				curr.WriteDescription("\n- ")
 				return bf.GoToNext
 			}
+		case bf.CodeBlock:
+			curr.WriteDescription("{code:" + string(n.Info) + "}\n")
+			curr.WriteDescription(string(n.Literal))
+			curr.WriteDescription("{code}")
 		case bf.Paragraph:
 			// Check if it is an empty paragraph, and it's not a part of a list
 			if entering && len(strings.TrimSpace(string(n.Literal))) == 0 && n.Prev != nil && n.Prev.Type != bf.Item {
